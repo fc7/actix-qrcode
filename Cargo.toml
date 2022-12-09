@@ -7,6 +7,5 @@ edition = "2021"
 
 [dependencies]
 actix-web = "4.1.0"
-qrcode = "0.12.0"
-image = "0.23.14"
-serde = { version = "1.0.137", features = ["derive"] }
+fast_qr = { version = "0.6.1", features = ["image"] }
+serde = { version = "1.0.149", features = ["derive"] }

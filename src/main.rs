@@ -1,8 +1,7 @@
 use actix_web::{get, web, App, HttpResponse, HttpServer, Responder};
-use qrcode::QrCode;
-use image::Luma;
-use image::codecs::png::PngEncoder;
-use image::ColorType;
+// use fast_qr::convert::ConvertError;
+use fast_qr::convert::{image::ImageBuilder, Builder, Shape};
+use fast_qr::qr::QRBuilder;
 use serde::Deserialize;
 use std::env;
 use std::vec::Vec;
@@ -29,17 +28,11 @@ async fn render_qrcode(params: web::Query<BarcodeParams>) -> impl Responder {
 }
 
 fn qrcode_png(content: &String) -> Vec<u8> {
-    let code = QrCode::new(content).unwrap();
-    println!("{}", format!("Qrcode created with version {:?}, ecl {:?}, and width {}", 
-        code.version(), code.error_correction_level(), code.width()));
-    let image: image::ImageBuffer<Luma<u8>, Vec<u8>> = code.render::<Luma<u8>>().build();
-    // https://stackoverflow.com/questions/50731636/how-do-i-encode-a-rust-piston-image-and-get-the-result-in-memory
-    // See also https://github.com/enaut/pslink/blob/master/app/src/pages/list_links.rs#L1044 
-    let mut buf: Vec<u8> = Vec::new();
-    let wd: u32 = image.width();
-    let ht: u32 = image.height();
-    let encoder: PngEncoder<&mut Vec<u8>> = PngEncoder::new(&mut buf);
-    encoder.encode(&image.into_raw(), wd, ht, ColorType::L8).expect("Cannot encode image");
+    let qrcode = QRBuilder::new(content.into())
+        .build()
+        .unwrap();
+    let buf = ImageBuilder::default()
+        .shape(Shape::Square).fit_width(600).to_pixmap(&qrcode).encode_png().unwrap();
     buf
 }
 
