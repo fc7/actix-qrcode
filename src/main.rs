@@ -9,6 +9,7 @@ use std::vec::Vec;
 #[derive(Deserialize)]
 struct BarcodeParams {
     content: String,
+    size: Option<u32>,
 }
 
 // #[get("/")]
@@ -23,16 +24,22 @@ struct BarcodeParams {
 
 #[get("/qrcode")]
 async fn render_qrcode(params: web::Query<BarcodeParams>) -> impl Responder {
-    let png = qrcode_png(&params.content);
+    // let _size = params.size.unwrap_or(600);
+    let png = qrcode_png(&params.content, params.size);
     HttpResponse::Ok().insert_header(("Content-Type", "image/png")).body(png)
 }
 
-fn qrcode_png(content: &String) -> Vec<u8> {
+fn qrcode_png(content: &str, size: Option<u32>) -> Vec<u8> {
     let qrcode = QRBuilder::new(content.into())
         .build()
         .unwrap();
-    let buf = ImageBuilder::default()
-        .shape(Shape::Square).fit_width(600).to_pixmap(&qrcode).encode_png().unwrap();
+    let mut builder = ImageBuilder::default();
+    builder.shape(Shape::Square);
+    if size.is_some() {
+        builder.fit_width(size.unwrap());
+    }
+    let buf = builder.to_pixmap(&qrcode)
+        .encode_png().unwrap();
     buf
 }
 
