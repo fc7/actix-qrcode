@@ -1,5 +1,4 @@
 use actix_web::{get, web, App, HttpResponse, HttpServer, Responder};
-// use fast_qr::convert::ConvertError;
 use fast_qr::convert::{image::ImageBuilder, Builder, Shape};
 use fast_qr::qr::QRBuilder;
 use serde::Deserialize;
@@ -13,19 +12,9 @@ struct BarcodeParams {
     //TODO type: "png" or "svg" (default=png)
 }
 
-// #[get("/")]
-// async fn hello() -> impl Responder {
-//     HttpResponse::Ok().body("Hello world!")
-// }
-
-// #[post("/echo")]
-// async fn echo(req_body: String) -> impl Responder {
-//     HttpResponse::Ok().body(req_body)
-// }
-
 #[get("/qrcode")]
 async fn render_qrcode(params: web::Query<BarcodeParams>) -> impl Responder {
-    // let _size = params.size.unwrap_or(600);
+    //TODO let _size = params.size.unwrap_or(600);
     let png = qrcode_png(&params.content, params.size);
     HttpResponse::Ok().insert_header(("Content-Type", "image/png")).body(png)
 }
