@@ -10,6 +10,7 @@ use std::vec::Vec;
 struct BarcodeParams {
     content: String,
     size: Option<u32>,
+    //TODO type: "png" or "svg" (default=png)
 }
 
 // #[get("/")]
