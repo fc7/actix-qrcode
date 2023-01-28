@@ -1,9 +1,8 @@
 use actix_web::{get, web, App, HttpResponse, HttpServer, Responder};
-use fast_qr::convert::{image::ImageBuilder, Builder, Shape};
-use fast_qr::qr::QRBuilder;
 use serde::Deserialize;
 use std::env;
-use std::vec::Vec;
+
+pub mod qr;
 
 #[derive(Deserialize)]
 struct BarcodeParams {
@@ -15,22 +14,8 @@ struct BarcodeParams {
 #[get("/qrcode")]
 async fn render_qrcode(params: web::Query<BarcodeParams>) -> impl Responder {
     //TODO let _size = params.size.unwrap_or(600);
-    let png = qrcode_png(&params.content, params.size);
+    let png = qr::qrcode_png(&params.content, params.size);
     HttpResponse::Ok().insert_header(("Content-Type", "image/png")).body(png)
-}
-
-fn qrcode_png(content: &str, size: Option<u32>) -> Vec<u8> {
-    let qrcode = QRBuilder::new(content.into())
-        .build()
-        .unwrap();
-    let mut builder = ImageBuilder::default();
-    builder.shape(Shape::Square);
-    if size.is_some() {
-        builder.fit_width(size.unwrap());
-    }
-    let buf = builder.to_pixmap(&qrcode)
-        .encode_png().unwrap();
-    buf
 }
 
 #[actix_web::main]
