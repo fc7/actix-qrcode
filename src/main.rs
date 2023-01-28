@@ -41,3 +41,28 @@ async fn main() -> std::io::Result<()> {
     .run()
     .await
 }
+
+#[cfg(test)]
+mod tests {
+    use actix_web::{test, App};
+
+    use crate::render_qrcode;
+
+    #[actix_web::test]
+    async fn test_render_qrcode_get() {
+        let app = 
+            test::init_service(App::new().service(render_qrcode)).await;
+        let req = test::TestRequest::get().uri("/qrcode?content=random-string-123").to_request();
+        let resp = test::call_service(&app, req).await;
+        assert!(resp.status().is_success());
+    }
+
+    #[actix_web::test]
+    async fn test_render_qrcode_get_empty() {
+        let app = 
+            test::init_service(App::new().service(render_qrcode)).await;
+        let req = test::TestRequest::get().uri("/qrcode").to_request();
+        let resp = test::call_service(&app, req).await;
+        assert!(resp.status().is_client_error());
+    }
+}
