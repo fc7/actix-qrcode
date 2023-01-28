@@ -3,7 +3,7 @@ use fast_qr::qr::QRBuilder;
 use std::vec::Vec;
 
 pub fn qrcode_png(content: &str, size: Option<u32>) -> Vec<u8> {
-    let qrcode = QRBuilder::new(content.into()).build().unwrap();
+    let qrcode = QRBuilder::new(String::from(content)).build().unwrap();
     let mut builder = ImageBuilder::default();
     builder.shape(Shape::Square);
     if size.is_some() {
