@@ -1,8 +1,7 @@
 use actix_web::{get, web, App, HttpResponse, HttpServer, Responder};
-use qrcode::QrCode;
-use image::Luma;
-use image::codecs::png::PngEncoder;
-use image::ColorType;
+// use fast_qr::convert::ConvertError;
+use fast_qr::convert::{image::ImageBuilder, Builder, Shape};
+use fast_qr::qr::QRBuilder;
 use serde::Deserialize;
 use std::env;
 use std::vec::Vec;
@@ -10,6 +9,8 @@ use std::vec::Vec;
 #[derive(Deserialize)]
 struct BarcodeParams {
     content: String,
+    size: Option<u32>,
+    //TODO type: "png" or "svg" (default=png)
 }
 
 // #[get("/")]
@@ -24,22 +25,22 @@ struct BarcodeParams {
 
 #[get("/qrcode")]
 async fn render_qrcode(params: web::Query<BarcodeParams>) -> impl Responder {
-    let png = qrcode_png(&params.content);
+    // let _size = params.size.unwrap_or(600);
+    let png = qrcode_png(&params.content, params.size);
     HttpResponse::Ok().insert_header(("Content-Type", "image/png")).body(png)
 }
 
-fn qrcode_png(content: &String) -> Vec<u8> {
-    let code = QrCode::new(content).unwrap();
-    println!("{}", format!("Qrcode created with version {:?}, ecl {:?}, and width {}", 
-        code.version(), code.error_correction_level(), code.width()));
-    let image: image::ImageBuffer<Luma<u8>, Vec<u8>> = code.render::<Luma<u8>>().build();
-    // https://stackoverflow.com/questions/50731636/how-do-i-encode-a-rust-piston-image-and-get-the-result-in-memory
-    // See also https://github.com/enaut/pslink/blob/master/app/src/pages/list_links.rs#L1044 
-    let mut buf: Vec<u8> = Vec::new();
-    let wd: u32 = image.width();
-    let ht: u32 = image.height();
-    let encoder: PngEncoder<&mut Vec<u8>> = PngEncoder::new(&mut buf);
-    encoder.encode(&image.into_raw(), wd, ht, ColorType::L8).expect("Cannot encode image");
+fn qrcode_png(content: &str, size: Option<u32>) -> Vec<u8> {
+    let qrcode = QRBuilder::new(content.into())
+        .build()
+        .unwrap();
+    let mut builder = ImageBuilder::default();
+    builder.shape(Shape::Square);
+    if size.is_some() {
+        builder.fit_width(size.unwrap());
+    }
+    let buf = builder.to_pixmap(&qrcode)
+        .encode_png().unwrap();
     buf
 }
 
