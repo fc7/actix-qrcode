@@ -28,8 +28,7 @@ RUN cargo build --release
 ####################################################################################################
 ## Final image
 ####################################################################################################
-# or bullseye-slim
-FROM debian:buster-slim
+FROM redhat/ubi9-minimal
 
 # Import from builder.
 COPY --from=builder /etc/passwd /etc/passwd
