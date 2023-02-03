@@ -2,7 +2,7 @@
 ####################################################################################################
 ## Builder
 ####################################################################################################
-FROM rust:latest AS builder
+FROM docker.io/rust:latest AS builder
 
 RUN update-ca-certificates
 
@@ -28,7 +28,8 @@ RUN cargo build --release
 ####################################################################################################
 ## Final image
 ####################################################################################################
-FROM redhat/ubi9-minimal
+FROM debian:bullseye-slim
+RUN apt-get upgrade && rm -rf /var/lib/apt/lists/*
 
 # Import from builder.
 COPY --from=builder /etc/passwd /etc/passwd

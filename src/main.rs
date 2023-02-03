@@ -11,7 +11,7 @@ struct BarcodeParams {
     //TODO type: "png" or "svg" (default=png)
 }
 
-#[get("/qrcode")]
+#[get("/")]
 async fn render_qrcode(params: web::Query<BarcodeParams>) -> impl Responder {
     //TODO let _size = params.size.unwrap_or(600);
     let png = qr::qrcode_png(&params.content, params.size);
@@ -36,6 +36,10 @@ async fn main() -> std::io::Result<()> {
         App::new()
             // .app_data(web::QueryConfig::default())
             .service(render_qrcode)
+            .route(
+                "/health/{_:(readiness|liveness)}",
+                web::get().to(HttpResponse::Ok),
+            )
     })
     .bind(bind_address + ":" + &port)?
     .run()
@@ -44,7 +48,7 @@ async fn main() -> std::io::Result<()> {
 
 #[cfg(test)]
 mod tests {
-    use actix_web::{test, App};
+    use actix_web::{test, web, App, HttpResponse};
 
     use crate::render_qrcode;
 
@@ -52,7 +56,19 @@ mod tests {
     async fn test_render_qrcode_get() {
         let app = 
             test::init_service(App::new().service(render_qrcode)).await;
-        let req = test::TestRequest::get().uri("/qrcode?content=random-string-123").to_request();
+        let req = test::TestRequest::get().uri("/?content=random-string-123").to_request();
+        let resp = test::call_service(&app, req).await;
+        assert!(resp.status().is_success());
+    }
+
+    #[actix_web::test]
+    async fn test_probes() {
+        let app = 
+            test::init_service(App::new().route(
+                "/health/{_:(readiness|liveness)}",
+                web::get().to(HttpResponse::Ok),
+            )).await;
+        let req = test::TestRequest::get().uri("/health/liveness").to_request();
         let resp = test::call_service(&app, req).await;
         assert!(resp.status().is_success());
     }
@@ -61,7 +77,7 @@ mod tests {
     async fn test_render_qrcode_get_empty() {
         let app = 
             test::init_service(App::new().service(render_qrcode)).await;
-        let req = test::TestRequest::get().uri("/qrcode").to_request();
+        let req = test::TestRequest::get().uri("/").to_request();
         let resp = test::call_service(&app, req).await;
         assert!(resp.status().is_client_error());
     }
