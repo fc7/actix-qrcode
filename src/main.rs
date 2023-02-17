@@ -21,7 +21,7 @@ async fn render_qrcode(params: web::Query<BarcodeParams>) -> impl Responder {
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
     const DEFAULT_IP: &'static str = "127.0.0.1";
-    const DEFAULT_PORT: &'static str = "8089";
+    const DEFAULT_PORT: &'static str = "8080";
     let bind_address: String = if env::var("BIND_ADDRESS").is_err() {
         DEFAULT_IP.to_string()
     } else {
