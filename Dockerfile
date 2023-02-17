@@ -2,22 +2,9 @@
 ####################################################################################################
 ## Builder
 ####################################################################################################
-FROM docker.io/rust:latest AS builder
+FROM registry.access.redhat.com/ubi9:9.1 AS builder
 
-RUN update-ca-certificates
-
-# Create appuser
-ENV USER=actix
-ENV UID=10001
-
-RUN adduser \
-    --disabled-password \
-    --gecos "" \
-    --home "/nonexistent" \
-    --shell "/sbin/nologin" \
-    --no-create-home \
-    --uid "${UID}" \
-    "${USER}"
+RUN dnf upgrade && dnf install -y rust-toolset
 
 WORKDIR /app
 
@@ -28,20 +15,14 @@ RUN cargo build --release
 ####################################################################################################
 ## Final image
 ####################################################################################################
-FROM debian:bullseye-slim
-RUN apt-get upgrade && rm -rf /var/lib/apt/lists/*
-
-# Import from builder.
-COPY --from=builder /etc/passwd /etc/passwd
-COPY --from=builder /etc/group /etc/group
+FROM registry.access.redhat.com/ubi9-minimal:9.1
 
 WORKDIR /app
 
-# Copy our build
 COPY --from=builder /app/target/release/actix-qrcode ./
 
 # Use an unprivileged user.
-USER actix:actix
+USER 1001
 
 ENV BIND_ADDRESS="0.0.0.0"
 
