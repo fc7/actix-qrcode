@@ -1,10 +1,8 @@
-# https://kerkour.com/rust-small-docker-image/
 ####################################################################################################
 ## Builder
 ####################################################################################################
-FROM registry.access.redhat.com/ubi9:9.1 AS builder
-
-RUN dnf upgrade && dnf install -y rust-toolset
+FROM quay.io/fedora/fedora:38 AS builder
+RUN dnf upgrade -y && dnf install -y rust cargo
 
 WORKDIR /app
 
@@ -15,7 +13,7 @@ RUN cargo build --release
 ####################################################################################################
 ## Final image
 ####################################################################################################
-FROM registry.access.redhat.com/ubi9-minimal:9.1
+FROM quay.io/fedora/fedora-minimal:38
 
 WORKDIR /app
 
@@ -25,5 +23,7 @@ COPY --from=builder /app/target/release/actix-qrcode ./
 USER 1001
 
 ENV BIND_ADDRESS="0.0.0.0"
+
+EXPOSE 8080
 
 CMD ["/app/actix-qrcode"]
