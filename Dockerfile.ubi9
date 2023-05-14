@@ -1,7 +1,7 @@
 ####################################################################################################
 ## Builder
 ####################################################################################################
-FROM quay.io/fedora/fedora:38 AS builder
+FROM registry.access.redhat.com/ubi9/ubi:9.2 AS builder
 RUN dnf upgrade -y && dnf install -y rust cargo
 
 WORKDIR /tmp
@@ -13,7 +13,7 @@ RUN cargo build --release
 ####################################################################################################
 ## Final image
 ####################################################################################################
-FROM quay.io/fedora/fedora-minimal:38
+FROM registry.access.redhat.com/ubi9/ubi-micro:9.2
 
 WORKDIR /app
 
