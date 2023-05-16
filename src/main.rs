@@ -16,7 +16,6 @@ pub(crate) struct BarcodeParams {
 async fn render_qrcode(params: web::Query<BarcodeParams>) -> impl Responder {
     let _render: &str = &params.render.to_owned().unwrap_or(String::from("png"));
     let _shape: &str = &params.shape.to_owned().unwrap_or(String::from("square"));
-    println!("rendering = {}, shape = {}", _render, _shape);
     if _render == "svg" {
         let svg = qr::qrcode_svg(&params.content, _shape);
         HttpResponse::Ok().insert_header(("Content-Type", "image/svg+xml")).body(svg)
