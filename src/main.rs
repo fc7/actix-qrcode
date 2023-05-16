@@ -5,22 +5,30 @@ use std::env;
 pub mod qr;
 
 #[derive(Deserialize)]
-struct BarcodeParams {
+pub(crate) struct BarcodeParams {
     content: String,
     size: Option<u32>,
-    //TODO type: "png" or "svg" (default=png)
+    render: Option<String>, // "png" or "svg", default = png
+    shape: Option<String>,  // Square, Circle, RoundedSquare, Vertical, Horizontal, Diamond (case-insensitive)
 }
 
 #[get("/")]
 async fn render_qrcode(params: web::Query<BarcodeParams>) -> impl Responder {
-    //TODO let _size = params.size.unwrap_or(600);
-    let png = qr::qrcode_png(&params.content, params.size);
-    HttpResponse::Ok().insert_header(("Content-Type", "image/png")).body(png)
+    let _render: &str = &params.render.to_owned().unwrap_or(String::from("png"));
+    let _shape: &str = &params.shape.to_owned().unwrap_or(String::from("square"));
+    println!("rendering = {}, shape = {}", _render, _shape);
+    if _render == "svg" {
+        let svg = qr::qrcode_svg(&params.content, _shape);
+        HttpResponse::Ok().insert_header(("Content-Type", "image/svg+xml")).body(svg)
+    } else {
+        let png = qr::qrcode_png(&params.content, _shape, params.size);
+        HttpResponse::Ok().insert_header(("Content-Type", "image/png")).body(png)
+    }
 }
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
-    const DEFAULT_IP: &'static str = "127.0.0.1";
+    const DEFAULT_IP: &'static str = "0.0.0.0";
     const DEFAULT_PORT: &'static str = "8080";
     let bind_address: String = if env::var("BIND_ADDRESS").is_err() {
         DEFAULT_IP.to_string()
@@ -48,9 +56,9 @@ async fn main() -> std::io::Result<()> {
 
 #[cfg(test)]
 mod tests {
-    use actix_web::{test, web, App, HttpResponse};
+    use actix_web::{test, App, HttpResponse, web};
 
-    use crate::render_qrcode;
+    use crate::{render_qrcode};
 
     #[actix_web::test]
     async fn test_render_qrcode_get() {
@@ -59,6 +67,37 @@ mod tests {
         let req = test::TestRequest::get().uri("/?content=random-string-123").to_request();
         let resp = test::call_service(&app, req).await;
         assert!(resp.status().is_success());
+        assert_eq!(resp.headers().get("Content-Type").unwrap(), "image/png");
+    }
+
+    #[actix_web::test]
+    async fn test_render_qrcode_get_with_size() {
+        let app = 
+            test::init_service(App::new().service(render_qrcode)).await;
+        let req = test::TestRequest::get().uri("/?content=random-string-123&size=1000").to_request();
+        let resp = test::call_service(&app, req).await;
+        assert!(resp.status().is_success());
+        assert_eq!(resp.headers().get("Content-Type").unwrap(), "image/png");
+    }
+
+    #[actix_web::test]
+    async fn test_render_qrcode_get_with_shape() {
+        let app = 
+            test::init_service(App::new().service(render_qrcode)).await;
+        let req = test::TestRequest::get().uri("/?content=lucy-in-the-sky-with-diamonds&shape=dIamOnD").to_request();
+        let resp = test::call_service(&app, req).await;
+        assert!(resp.status().is_success());
+        assert_eq!(resp.headers().get("Content-Type").unwrap(), "image/png");
+    }
+
+    #[actix_web::test]
+    async fn test_render_qrcode_get_svg() {
+        let app = 
+            test::init_service(App::new().service(render_qrcode)).await;
+        let req = test::TestRequest::get().uri("/?content=random-string-123&render=svg").to_request();
+        let resp = test::call_service(&app, req).await;
+        assert!(resp.status().is_success());
+        assert_eq!(resp.headers().get("Content-Type").unwrap(), "image/svg+xml");
     }
 
     #[actix_web::test]
