@@ -1,8 +1,13 @@
+/*
+Script to perform an e2e test of the service with k6 (https://k6.io)
+*/
 import http from 'k6/http';
 import {
   check
 } from 'k6';
 import crypto from 'k6/crypto';
+
+//TODO use Options for the url, the length of the randomContent, etc
 
 export default function () {
 
