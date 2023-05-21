@@ -1,9 +1,12 @@
 [package]
-name = "actix-qrcode"
-version = "0.2.0"
+name = "qrcode-warp"
+version = "0.1.0"
 edition = "2021"
 
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
 [dependencies]
-actix-web = "4.3.1"
-fast_qr = { version = "0.8.6", features = ["image"] }
+warp = "0.3.5"
+tokio = { version = "1.28.1", features = ["full"] }
+fast_qr = { version = "0.9.0", features = ["image"] }
 serde = { version = "1.0.163", features = ["derive"] }
