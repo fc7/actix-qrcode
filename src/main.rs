@@ -47,3 +47,27 @@ async fn main() {
     let addr : String = bind_address + ":" + &port;
     warp::serve(routes).run(SocketAddr::from_str(&addr).unwrap()).await;
 }
+
+#[tokio::test]
+async fn test_qrcode_png() {
+    let filter = warp::get()
+        .and(warp::path::end()) // filter only applies to root
+        .and(warp::query::<BarcodeParams>()).map(handlers::qrcode_body);
+    let res = warp::test::request()
+    .path("/?content=test123")
+    .reply(&filter).await;
+    assert_eq!(res.status(), 200);
+    assert!(res.body().len()>0);
+}
+
+#[tokio::test]
+async fn test_qrcode_svg() {
+    let filter = warp::get()
+        .and(warp::path::end())
+        .and(warp::query::<BarcodeParams>()).map(handlers::qrcode_body);
+    let res = warp::test::request()
+    .path("/?content=test123&render=svg")
+    .reply(&filter).await;
+    assert_eq!(res.status(), 200);
+    assert!(res.body().len()>0);
+}
