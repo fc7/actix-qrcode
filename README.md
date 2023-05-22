@@ -1,4 +1,4 @@
-# Simple demo app with Actix Web microframework
+# Simple demo web app in Rust, compatible with Knative Serving
 
 The app exposes the an API endpoint under `/` which accepts a `content` string as query parameter. It returns an image (by default a PNG) in the body with a QRCode that encodes the string.
 
@@ -16,6 +16,8 @@ curl localhost:8080/?content=the-1st-string-to-be-encoded&size=1000
 
 curl localhost:8080/?content=the-2nd-string-to-be-encoded&render=svg&shape=roundedsquare
 ```
+
+## Knative Serving
 
 The endpoints `/health/readiness` and `/health/liveness` are also provided for compatibility with [Knative Serving](https://knative.dev/docs/serving/).
 
