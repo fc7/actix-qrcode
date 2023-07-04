@@ -35,3 +35,19 @@ kn service create qrcode \
     --image your-repo/qrcode \
     --port 8080
 ```
+
+## Pipelines as Code
+
+A file `.tekton/pipelinerun.yaml` is provided for the [Pipelines as Code feature of Tekton](https://pipelinesascode.com/). 
+To enable it, follow the instructions provided by the previous link.
+It provides three tasks, executed sequentially:
+
+1. fetch-repository (with [git-clone](https://hub.tekton.dev/tekton/task/git-clone))
+2. build-image (with [buildah](https://hub.tekton.dev/tekton/task/buildah))
+3. kn-service-apply (with [kn](https://hub.tekton.dev/tekton/task/kn))
+
+This fetches the code, builds the container image and finally deploys the Knative service 
+to the Kubernetes or OpenShift cluster.
+
+NB: An easier alternative would have been to use Knative Functions with Rust and remote deploy, 
+but with the approach exemplified in this repo, we have full control over the image build, which is actually faster than with [buildpack](https://github.com/paketo-community/rust-dist) and produces a much leaner image!
