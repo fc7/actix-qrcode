@@ -80,7 +80,7 @@ spec:
             - service
             - apply
             - $(params.APP_NAME)
-            - '--image=$(params.IMAGE_NAME)@$(tasks.build.results.IMAGE_DIGEST)'
+            - '--image=$(params.IMAGE_NAME)@$(tasks.build-image.results.IMAGE_DIGEST)'
         runAfter:
             - build-image
         taskRef:
