@@ -1,6 +1,6 @@
 #![deny(warnings)]
 use warp::Filter;
-use serde::{Deserialize};
+use serde::Deserialize;
 use std::{env, net::SocketAddr, str::FromStr};
 pub mod qr;
 pub mod handlers;
@@ -13,7 +13,7 @@ pub(crate) struct BarcodeParams {
     shape: Option<String>,  // Square, Circle, RoundedSquare, Vertical, Horizontal, Diamond (case-insensitive)
 }
 
-#[tokio::main]
+#[tokio::main(flavor = "current_thread")]
 async fn main() {
 
     let qrcode = warp::get()
