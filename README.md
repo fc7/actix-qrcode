@@ -1,8 +1,8 @@
 # Simple WASM demo web app in Rust, compatible with Knative Serving
 
-_**NB**: This branch provides the same app as in branch `warp`, but adapted for compilation to [WebAssembly](https://webassembly.org/) + [WASI](https://wasi.dev/). Besides replacing the warp and tokio dependencies in `Cargo.toml` to [warp_wasi](https://crates.io/crates/warp_wasi) and [tokio_wasi](https://crates.io/crates/tokio_wasi), respectively, we only had to change change the `#[tokio::main]` annotation of the main function to `#[tokio::main(flavor = "current_thread")]`._
+_**NB**: This branch provides the same app as in branch `warp`, but adapted for compilation to [WebAssembly](https://webassembly.org/) + [WASI](https://wasi.dev/). Besides replacing the warp and tokio dependencies in `Cargo.toml` to [warp_wasi](https://crates.io/crates/warp_wasi) and [tokio_wasi](https://crates.io/crates/tokio_wasi), respectively, we only had to change the `#[tokio::main]` annotation of the main function to `#[tokio::main(flavor = "current_thread")]`._
 
-The app exposes the an API endpoint under `/` which accepts a `content` string as query parameter. It returns an image (by default a PNG) in the body with a QRCode that encodes the string.
+The app exposes an API endpoint under `/` which accepts a `content` string as query parameter. It returns an image (by default a PNG) in the body with a QRCode that encodes the string.
 
 Optionally one can also pass the following query parameters:
 
