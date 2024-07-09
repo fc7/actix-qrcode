@@ -32,7 +32,7 @@ spec:
     - name: APP_NAME
       value: qrcode-actix  
     - name: IMAGE_NAME
-      value: quay.io/rh_ee_fcharett/qrcode-actix:0.2.1
+      value: quay.io/rh_ee_fcharett/qrcode:0.2.1
       # value: image-registry.openshift-image-registry.svc:5000/default/qrcode-actix
     - name: DOCKERFILE_PATH
       value: ./Dockerfile.ubi9
@@ -97,6 +97,12 @@ spec:
             - service
             - apply
             - $(params.APP_NAME)
+            - -n
+            - qrcode
+            - --scale-max
+            - "3"
+            - --scale-window
+            - 30s
             - '--image=$(params.IMAGE_NAME)@$(tasks.build-image.results.IMAGE_DIGEST)'
         runAfter:
             - build-image
