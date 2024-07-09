@@ -57,7 +57,7 @@ async fn main() -> std::io::Result<()> {
 mod tests {
     use actix_web::{test, App, HttpResponse, web};
 
-    use crate::{render_qrcode};
+    use crate::render_qrcode;
 
     #[actix_web::test]
     async fn test_render_qrcode_get() {
