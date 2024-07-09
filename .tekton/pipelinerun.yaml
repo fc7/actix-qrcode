@@ -32,8 +32,8 @@ spec:
     - name: APP_NAME
       value: qrcode-actix  
     - name: IMAGE_NAME
-      # value: quay.io/rh_ee_fcharett/qrcode-actix
-      value: image-registry.openshift-image-registry.svc:5000/default/qrcode-actix
+      value: quay.io/rh_ee_fcharett/qrcode-actix:0.2.1
+      # value: image-registry.openshift-image-registry.svc:5000/default/qrcode-actix
     - name: DOCKERFILE_PATH
       value: ./Dockerfile.ubi9
   pipelineSpec:
@@ -88,8 +88,8 @@ spec:
         workspaces:
           - name: source
             workspace: source
-          # - name: dockerconfig
-          #   workspace: dockerconfig
+          - name: dockerconfig
+            workspace: dockerconfig
       - name: kn-service-apply
         params:
         - name: ARGS
@@ -124,6 +124,6 @@ spec:
     secret:
       secretName: "{{ git_auth_secret }}"
   # This is needed to be able to push to quay.io:
-  # - name: dockerconfig
-  #   secret:
-  #     secretName: container-registry-secret
+  - name: dockerconfig
+    secret:
+      secretName: container-registry-secret
