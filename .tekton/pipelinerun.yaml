@@ -13,11 +13,11 @@ metadata:
 
     # Fetch the git-clone task from hub, we are able to reference later on it
     # with taskRef and it will automatically be embedded into our pipeline.
-    pipelinesascode.tekton.dev/task: "git-clone"
+    # pipelinesascode.tekton.dev/task: "git-clone"
 
-    pipelinesascode.tekton.dev/task-1: "buildah"
+    # pipelinesascode.tekton.dev/task-1: "buildah"
 
-    pipelinesascode.tekton.dev/task-2: "kn"
+    # pipelinesascode.tekton.dev/task-2: "kn"
 
     # How many runs we want to keep.
     pipelinesascode.tekton.dev/max-keep-runs: "5"
@@ -32,6 +32,7 @@ spec:
     - name: APP_NAME
       value: qrcode-actix  
     - name: IMAGE_NAME
+      # value: quay.io/rh_ee_fcharett/qrcode-actix
       value: image-registry.openshift-image-registry.svc:5000/default/qrcode-actix
     - name: DOCKERFILE_PATH
       value: ./Dockerfile.ubi9
@@ -45,24 +46,36 @@ spec:
     tasks:
       - name: fetch-repository
         taskRef:
-          name: git-clone
-          kind: ClusterTask
+          resolver: cluster
+          params:
+          - name: name
+            value: git-clone
+          - name: namespace
+            value: openshift-pipelines
+          - name: kind
+            value: task
         workspaces:
           - name: output
             workspace: source
           - name: basic-auth
             workspace: basic-auth
         params:
-          - name: url
+          - name: URL
             value: $(params.repo_url)
-          - name: revision
+          - name: REVISION
             value: $(params.revision)
       - name: build-image
         runAfter:
           - fetch-repository
         taskRef:
-          name: buildah
-          kind: ClusterTask
+          resolver: cluster
+          params:
+          - name: name
+            value: buildah
+          - name: namespace
+            value: openshift-pipelines
+          - name: kind
+            value: task
         params:
           - name: DOCKERFILE
             value: $(params.DOCKERFILE_PATH)
@@ -70,9 +83,13 @@ spec:
             value: $(params.IMAGE_NAME)
           - name: TLSVERIFY
             value: 'false'
+          - name: SKIP_PUSH
+            value: 'false'
         workspaces:
           - name: source
             workspace: source
+          # - name: dockerconfig
+          #   workspace: dockerconfig
       - name: kn-service-apply
         params:
         - name: ARGS
@@ -84,8 +101,14 @@ spec:
         runAfter:
             - build-image
         taskRef:
-          kind: ClusterTask
-          name: kn
+          resolver: cluster
+          params:
+          - name: name
+            value: kn
+          - name: namespace
+            value: openshift-pipelines
+          - name: kind
+            value: task
   workspaces:
   - name: source
     volumeClaimTemplate:
@@ -100,3 +123,7 @@ spec:
   - name: basic-auth
     secret:
       secretName: "{{ git_auth_secret }}"
+  # This is needed to be able to push to quay.io:
+  # - name: dockerconfig
+  #   secret:
+  #     secretName: container-registry-secret
