@@ -1,0 +1,22 @@
+# adapted from https://github.com/tektoncd/catalog/blob/main/task/kn/0.2/support/kn-deployer.yaml
+kind: ClusterRole
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: kn-deployer
+rules:
+  - apiGroups: ["serving.knative.dev"]
+    resources: ["services", "revisions", "routes"]
+    verbs: ["get", "list", "create", "update", "delete", "patch", "watch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: kn-deployer-binding
+subjects:
+- kind: ServiceAccount
+  name: pipeline
+  namespace: pac-pipelines
+roleRef:
+  kind: ClusterRole
+  name: kn-deployer
+  apiGroup: rbac.authorization.k8s.io
