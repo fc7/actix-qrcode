@@ -32,7 +32,7 @@ spec:
     - name: APP_NAME
       value: qrcode-actix  
     - name: IMAGE_NAME
-      value: quay.io/rh_ee_fcharett/qrcode:0.2.1
+      value: quay.io/rh_ee_fcharett/qrcode:0.2.2
       # value: image-registry.openshift-image-registry.svc:5000/default/qrcode-actix
     - name: DOCKERFILE_PATH
       value: ./Dockerfile.ubi9

@@ -8,11 +8,14 @@ Optionally one can also pass the following query parameters:
 * `size`: the size of the raster image in pixels (ignored when `render=svg`)
 * `shape`: the shape of the QRCode modules: `square` (default), `roundedsquare`, `circle`, `diamond`, `vertical` or `horizontal` 
   (beware that not all client applications will be able to correctly decode a QRCode with an exotic module shape).
+* `embed`: whether to embed an image in the QRcode (boolean, default is `false`). 
+   The [default image](./assets/thehat.svg) can be replaced with a custom svg image 
+   by means of the env variable `EMBEDDED_IMG_PATH`.
 
 Example requests with curl:
 
 ```none
-curl localhost:8080/?content=the-1st-string-to-be-encoded&size=1000
+curl localhost:8080/?content=the-1st-string-to-be-encoded&size=1000&embed=true
 
 curl localhost:8080/?content=the-2nd-string-to-be-encoded&render=svg&shape=roundedsquare
 ```

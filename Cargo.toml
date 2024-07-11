@@ -1,10 +1,10 @@
 [package]
 name = "actix-qrcode"
-version = "0.2.1"
+version = "0.2.2"
 edition = "2021"
 
 [dependencies]
+base64 = "0.22.1"
 actix-web = "4.8.0"
-actix-files = "0.6.6"
 fast_qr = { version = "0.12.5", features = ["image"] }
 serde = { version = "1.0.204", features = ["derive"] }

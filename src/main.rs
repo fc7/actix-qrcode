@@ -1,5 +1,4 @@
 use actix_web::{get, web, App, HttpResponse, HttpServer, Responder};
-use actix_files as fs;
 use serde::Deserialize;
 use std::env;
 
@@ -11,7 +10,7 @@ pub(crate) struct BarcodeParams {
     size: Option<u32>,
     render: Option<String>, // "png" or "svg", default = png
     shape: Option<String>,  // Square, Circle, RoundedSquare, Vertical, Horizontal, Diamond (case-insensitive)
-    embed: Option<bool>
+    embed: Option<bool> // whether to embed an image
 }
 
 #[get("/")]
@@ -44,13 +43,7 @@ async fn main() -> std::io::Result<()> {
     };
     HttpServer::new(|| {
         App::new()
-            // .app_data(web::QueryConfig::default())
             .service(render_qrcode)
-            .service(
-                fs::Files::new("/assets", "./assets")
-                    // .index_file("index.html")
-                    .use_last_modified(true),
-            )
             .route(
                 "/health/{_:(readiness|liveness)}",
                 web::get().to(HttpResponse::Ok),
