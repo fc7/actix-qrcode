@@ -10,17 +10,19 @@ pub(crate) struct BarcodeParams {
     size: Option<u32>,
     render: Option<String>, // "png" or "svg", default = png
     shape: Option<String>,  // Square, Circle, RoundedSquare, Vertical, Horizontal, Diamond (case-insensitive)
+    embed: Option<bool> // whether to embed an image
 }
 
 #[get("/")]
 async fn render_qrcode(params: web::Query<BarcodeParams>) -> impl Responder {
     let _render: &str = &params.render.to_owned().unwrap_or(String::from("png"));
     let _shape: &str = &params.shape.to_owned().unwrap_or(String::from("square"));
+    let _embed: &bool = &params.embed.to_owned().unwrap_or(false);
     if _render == "svg" {
-        let svg = qr::qrcode_svg(&params.content, _shape);
+        let svg = qr::qrcode_svg(&params.content, _shape, _embed);
         HttpResponse::Ok().insert_header(("Content-Type", "image/svg+xml")).body(svg)
     } else {
-        let png = qr::qrcode_png(&params.content, _shape, params.size);
+        let png = qr::qrcode_png(&params.content, _shape, params.size, _embed);
         HttpResponse::Ok().insert_header(("Content-Type", "image/png")).body(png)
     }
 }
@@ -41,7 +43,6 @@ async fn main() -> std::io::Result<()> {
     };
     HttpServer::new(|| {
         App::new()
-            // .app_data(web::QueryConfig::default())
             .service(render_qrcode)
             .route(
                 "/health/{_:(readiness|liveness)}",
