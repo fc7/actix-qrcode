@@ -1,5 +1,9 @@
 /*
 Script to perform an e2e test of the service with k6 (https://k6.io)
+
+Example run (while service is running and listening to port 8080):
+$ k6 run -u 50 -i 10000 k6.js
+
 */
 import http from 'k6/http';
 import {

@@ -1,7 +1,7 @@
 ####################################################################################################
 ## Builder
 ####################################################################################################
-FROM registry.access.redhat.com/ubi9/ubi:9.4 AS builder
+FROM registry.access.redhat.com/ubi9/ubi:9.6 AS builder
 RUN dnf upgrade -y && dnf install -y rust cargo
 
 WORKDIR /tmp
@@ -13,7 +13,7 @@ RUN cargo build --release
 ####################################################################################################
 ## Final image
 ####################################################################################################
-FROM registry.access.redhat.com/ubi9/ubi-micro:9.4
+FROM registry.access.redhat.com/ubi9/ubi-micro:9.6
 
 WORKDIR /app
 
