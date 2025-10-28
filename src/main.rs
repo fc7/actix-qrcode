@@ -1,4 +1,4 @@
-use actix_web::{get, web, App, HttpResponse, HttpServer, Responder};
+use actix_web::{get, web, App, HttpRequest, HttpResponse, HttpServer, Responder};
 use serde::Deserialize;
 use std::env;
 
@@ -14,7 +14,18 @@ pub(crate) struct BarcodeParams {
 }
 
 #[get("/")]
-async fn render_qrcode(params: web::Query<BarcodeParams>) -> impl Responder {
+async fn render_qrcode(req: HttpRequest, params: web::Query<BarcodeParams>) -> impl Responder {
+    // Log the incoming request
+    log::info!(
+        "QR Code request - IP: {}, User-Agent: {}, Content: {}, Render: {}, Shape: {}, Size: {:?}",
+        req.connection_info().realip_remote_addr().unwrap_or("unknown"),
+        req.headers().get("user-agent").map(|h| h.to_str().unwrap_or("unknown")).unwrap_or("unknown"),
+        params.content,
+        params.render.as_ref().unwrap_or(&"png".to_string()),
+        params.shape.as_ref().unwrap_or(&"square".to_string()),
+        params.size
+    );
+    
     let _render: &str = &params.render.to_owned().unwrap_or(String::from("png"));
     let _shape: &str = &params.shape.to_owned().unwrap_or(String::from("square"));
     let _embed: &bool = &params.embed.to_owned().unwrap_or(false);
@@ -27,8 +38,22 @@ async fn render_qrcode(params: web::Query<BarcodeParams>) -> impl Responder {
     }
 }
 
+async fn health_check(req: HttpRequest) -> impl Responder {
+    let probe_type = req.match_info().get("probe").unwrap_or("unknown");
+    log::info!("Health check request - Probe: {}, IP: {}", 
+               probe_type, 
+               req.connection_info().realip_remote_addr().unwrap_or("unknown"));
+    HttpResponse::Ok()
+}
+
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
+    env_logger::Builder::from_default_env()
+        .filter_level(log::LevelFilter::Info)
+        .init();
+    
+    log::info!("Starting QRCode microservice");
+    
     const DEFAULT_IP: &'static str = "0.0.0.0";
     const DEFAULT_PORT: &'static str = "8080";
     let bind_address: String = if env::var("BIND_ADDRESS").is_err() {
@@ -41,12 +66,15 @@ async fn main() -> std::io::Result<()> {
     } else {
         env::var("PORT").unwrap()
     };
+    
+    log::info!("Binding to {}:{}", bind_address, port);
+    
     HttpServer::new(|| {
         App::new()
             .service(render_qrcode)
             .route(
-                "/health/{_:(readiness|liveness)}",
-                web::get().to(HttpResponse::Ok),
+                "/health/{probe:(readiness|liveness)}",
+                web::get().to(health_check),
             )
     })
     .bind(bind_address + ":" + &port)?
@@ -56,9 +84,9 @@ async fn main() -> std::io::Result<()> {
 
 #[cfg(test)]
 mod tests {
-    use actix_web::{test, App, HttpResponse, web};
+    use actix_web::{test, App, web};
 
-    use crate::render_qrcode;
+    use crate::{render_qrcode, health_check};
 
     #[actix_web::test]
     async fn test_render_qrcode_get() {
@@ -104,8 +132,8 @@ mod tests {
     async fn test_probes() {
         let app = 
             test::init_service(App::new().route(
-                "/health/{_:(readiness|liveness)}",
-                web::get().to(HttpResponse::Ok),
+                "/health/{probe:(readiness|liveness)}",
+                web::get().to(health_check),
             )).await;
         let req = test::TestRequest::get().uri("/health/liveness").to_request();
         let resp = test::call_service(&app, req).await;
