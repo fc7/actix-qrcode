@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
       - name: qrcode
-        image: quay.io/rh_ee_fcharett/qrcode@sha256:ed2345e8baf676e830a34f68f90e08865b8bcde917c5c5970a644a1f9faace54
+        image: quay.io/rh_ee_fcharett/qrcode:0.2.5
         pullPolicy: Always
         ports:
         - containerPort: 8080
