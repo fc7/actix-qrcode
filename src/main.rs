@@ -38,11 +38,7 @@ async fn render_qrcode(req: HttpRequest, params: web::Query<BarcodeParams>) -> i
     }
 }
 
-async fn health_check(req: HttpRequest) -> impl Responder {
-    let probe_type = req.match_info().get("probe").unwrap_or("unknown");
-    log::info!("Health check request - Probe: {}, IP: {}", 
-               probe_type, 
-               req.connection_info().realip_remote_addr().unwrap_or("unknown"));
+async fn health_check(_req: HttpRequest) -> impl Responder {
     HttpResponse::Ok()
 }
 
