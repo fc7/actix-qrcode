@@ -1,4 +1,5 @@
 use actix_web::{get, web, App, HttpRequest, HttpResponse, HttpServer, Responder};
+use actix_cors::Cors;
 use serde::Deserialize;
 use std::env;
 
@@ -65,8 +66,31 @@ async fn main() -> std::io::Result<()> {
     
     log::info!("Binding to {}:{}", bind_address, port);
     
-    HttpServer::new(|| {
+    // Configure CORS based on environment variable
+    let cors_origin = env::var("CORS_ORIGIN").ok();
+    if let Some(ref origin) = cors_origin {
+        log::info!("CORS configured for origin: {}", origin);
+    } else {
+        log::info!("CORS configured to allow any origin");
+    }
+    
+    HttpServer::new(move || {
+        let cors = if let Some(ref origin) = cors_origin {
+            Cors::default()
+                .allowed_origin(origin)
+                .allow_any_method()
+                .allow_any_header()
+                .max_age(3600)
+        } else {
+            Cors::default()
+                .allow_any_origin()
+                .allow_any_method()
+                .allow_any_header()
+                .max_age(3600)
+        };
+        
         App::new()
+            .wrap(cors)
             .service(render_qrcode)
             .route(
                 "/health/{probe:(readiness|liveness)}",

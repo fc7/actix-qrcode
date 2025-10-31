@@ -27,6 +27,8 @@ The endpoints `/health/readiness` and `/health/liveness` are also provided.
 By default the service listens to port 8080. It can be modified via the environment variable `PORT`.
 The IP address to which the service binds is by default `0.0.0.0`, but it can be likewise modified via `BIND_ADDRESS`.
 
+CORS (Cross-Origin Resource Sharing) is enabled by default and allows requests from any origin. To restrict CORS to a specific origin, set the `CORS_ORIGIN` environment variable (e.g., `CORS_ORIGIN=http://localhost:5173`).
+
 The provided `Containerfile` can be used to build a container image based on 
 [UBI 9](https://catalog.redhat.com/en/software/containers/ubi9/ubi/615bcf606feffc5384e8452e) ([Docker Hub](https://hub.docker.com/r/redhat/ubi9)).
 

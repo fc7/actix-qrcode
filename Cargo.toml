@@ -6,6 +6,7 @@ edition = "2021"
 [dependencies]
 base64 = "0.22.1"
 actix-web = "4.11.0"
+actix-cors = "0.7.0"
 fast_qr = { version = "0.13.1", features = ["image"] }
 serde = { version = "1.0.228", features = ["derive"] }
 log = "0.4.28"
