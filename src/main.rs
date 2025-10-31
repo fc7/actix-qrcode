@@ -31,11 +31,29 @@ async fn render_qrcode(req: HttpRequest, params: web::Query<BarcodeParams>) -> i
     let _shape: &str = &params.shape.to_owned().unwrap_or(String::from("square"));
     let _embed: &bool = &params.embed.to_owned().unwrap_or(false);
     if _render == "svg" {
-        let svg = qr::qrcode_svg(&params.content, _shape, _embed);
-        HttpResponse::Ok().insert_header(("Content-Type", "image/svg+xml")).body(svg)
+        match qr::qrcode_svg(&params.content, _shape, _embed) {
+            Ok(svg) => HttpResponse::Ok()
+                .insert_header(("Content-Type", "image/svg+xml"))
+                .body(svg),
+            Err(e) => {
+                log::warn!("Failed to generate SVG QR code: {}", e);
+                HttpResponse::BadRequest()
+                    .insert_header(("Content-Type", "text/plain"))
+                    .body(e)
+            }
+        }
     } else {
-        let png = qr::qrcode_png(&params.content, _shape, params.size, _embed);
-        HttpResponse::Ok().insert_header(("Content-Type", "image/png")).body(png)
+        match qr::qrcode_png(&params.content, _shape, params.size, _embed) {
+            Ok(png) => HttpResponse::Ok()
+                .insert_header(("Content-Type", "image/png"))
+                .body(png),
+            Err(e) => {
+                log::warn!("Failed to generate PNG QR code: {}", e);
+                HttpResponse::BadRequest()
+                    .insert_header(("Content-Type", "text/plain"))
+                    .body(e)
+            }
+        }
     }
 }
 
