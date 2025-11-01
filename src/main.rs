@@ -16,7 +16,6 @@ pub(crate) struct BarcodeParams {
 
 #[get("/")]
 async fn render_qrcode(req: HttpRequest, params: web::Query<BarcodeParams>) -> impl Responder {
-    // Log the incoming request
     log::info!(
         "QR Code request - IP: {}, User-Agent: {}, Content: {}, Render: {}, Shape: {}, Size: {:?}",
         req.connection_info().realip_remote_addr().unwrap_or("unknown"),
@@ -84,7 +83,6 @@ async fn main() -> std::io::Result<()> {
     
     log::info!("Binding to {}:{}", bind_address, port);
     
-    // Configure CORS based on environment variable
     let cors_origin = env::var("CORS_ORIGIN").ok();
     if let Some(ref origin) = cors_origin {
         log::info!("CORS configured for origin: {}", origin);
