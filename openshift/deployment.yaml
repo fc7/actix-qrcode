@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
       - name: qrcode
-        image: quay.io/rh_ee_fcharett/qrcode:0.2.5-1
+        image: quay.io/rh_ee_fcharett/qrcode:0.2.6
         pullPolicy: IfNotPresent
         ports:
         - containerPort: 8080
