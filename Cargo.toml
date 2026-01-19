@@ -1,13 +1,13 @@
 [package]
 name = "actix-qrcode"
-version = "0.2.6"
+version = "0.2.7"
 edition = "2021"
 
 [dependencies]
 base64 = "0.22.1"
-actix-web = "4.11.0"
+actix-web = "4.12.1"
 actix-cors = "0.7.1"
 fast_qr = { version = "0.13.1", features = ["image"] }
 serde = { version = "1.0.228", features = ["derive"] }
-log = "0.4.28"
+log = "0.4.29"
 env_logger = "0.11.8"

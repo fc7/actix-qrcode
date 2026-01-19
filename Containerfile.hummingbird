@@ -1,0 +1,11 @@
+FROM quay.io/hummingbird/rust AS builder
+WORKDIR /tmp
+
+COPY ./ .
+
+RUN cargo build --release
+
+FROM quay.io/hummingbird/core-runtime:latest
+COPY --from=builder /tmp/target/release/actix-qrcode /usr/bin/qrcode
+EXPOSE 8080
+CMD [ "/usr/bin/qrcode" ]
